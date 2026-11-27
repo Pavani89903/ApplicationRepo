@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Ticket Booking</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #222;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #ccc;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .screen {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+
+        .seats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            justify-items: center;
+        }
+
+        .seat {
+            background: #ddd;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 35px;
+            text-align: center;
+        }
+
+        .seat.selected {
+            background: #28a745;
+            color: white;
+        }
+
+        .seat.booked {
+            background: #dc3545;
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .details {
+            margin-top: 25px;
+            line-height: 2;
+            font-size: 17px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #message {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🎬 Movie Ticket Booking</h1>
+
+    <div class="container">
+
+        <label>Select Movie</label>
+        <select id="movie">
+            <option value="150">Pushpa 2 - ₹150</option>
+            <option value="180">Devara - ₹180</option>
+            <option value="200">RRR - ₹200</option>
+            <option value="120">Salaar - ₹120</option>
+        </select>
+
+        <label>Select Show Time</label>
+        <select id="time">
+            <option>10:00 AM</option>
+            <option>1:00 PM</option>
+            <option>4:00 PM</option>
+            <option>7:00 PM</option>
+        </select>
+
+        <div class="screen">
+            SCREEN THIS WAY
+        </div>
+
+        <h3>Select Your Seats</h3>
+
+        <div class="seats" id="seats"></div>
+
+        <div class="details">
+            <p>Selected Seats: <span id="count">0</span></p>
+            <p>Ticket Price: ₹<span id="price">150</span></p>
+            <p>Total Amount: ₹<span id="total">0</span></p>
+        </div>
+
+        <button onclick="bookTickets()">Book Tickets</button>
+
+        <p id="message"></p>
+
+    </div>
+
+    <script>
+
+        const seatsContainer = document.getElementById("seats");
+
+        const movie = document.getElementById("movie");
+
+        let selectedSeats = [];
+
+        // Generate 25 seats
+        for (let i = 1; i <= 25; i++) {
+
+            const seat = document.createElement("div");
+
+            seat.classList.add("seat");
+
+            seat.innerText = i;
+
+            // Some seats are already booked
+            if ([3, 8, 12, 19].includes(i)) {
+
+                seat.classList.add("booked");
+
+            } else {
+
+                seat.addEventListener("click", function() {
+
+                    seat.classList.toggle("selected");
+
+                    if (selectedSeats.includes(i)) {
+
+                        selectedSeats =
+                            selectedSeats.filter(s => s !== i);
+
+                    } else {
+
+                        selectedSeats.push(i);
+
+                    }
+
+                    updateTotal();
+
+                });
+
+            }
+
+            seatsContainer.appendChild(seat);
+        }
+
+        // Update ticket price
+        function updateTotal() {
+
+            const ticketPrice = Number(movie.value);
+
+            const total = selectedSeats.length * ticketPrice;
+
+            document.getElementById("count").innerText =
+                selectedSeats.length;
+
+            document.getElementById("price").innerText =
+                ticketPrice;
+
+            document.getElementById("total").innerText =
+                total;
+
+        }
+
+        // Update price when movie changes
+        movie.addEventListener("change", updateTotal);
+
+        // Book tickets
+        function bookTickets() {
+
+            if (selectedSeats.length === 0) {
+
+                alert("Please select at least one seat!");
+
+                return;
+
+            }
+
+            const movieName =
+                movie.options[movie.selectedIndex].text;
+
+            const showTime =
+                document.getElementById("time").value;
+
+            const total =
+                selectedSeats.length * Number(movie.value);
+
+            document.getElementById("message").innerText =
+                "Booking Successful! 🎉";
+
+            alert(
+                "Movie: " + movieName +
+                "\nShow Time: " + showTime +
+                "\nSeats: " + selectedSeats.join(", ") +
+                "\nTotal Amount: ₹" + total
+            );
+
+            // Mark selected seats as booked
+            document.querySelectorAll(".seat.selected")
+                .forEach(seat => {
+                    seat.classList.remove("selected");
+                    seat.classList.add("booked");
+                    seat.replaceWith(seat.cloneNode(true));
+                });
+
+            selectedSeats = [];
+
+            updateTotal();
+
+        }
+
+        updateTotal();
+
+    </script>
+
+</body>
+</html>
+
